@@ -1,37 +1,44 @@
 import { test, expect } from '@playwright/test';
 
-test.beforeEach(async ({ page }) => {
+const XYZ = 'https://www.xiaoyuzhoufm.com/episode/6a62ccb96356eb2d9be785fa';
+
+test('home shows site title and an episode card', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('.site-title')).toHaveText('雨林观察者的博客');
+  const card = page.locator('.card').first();
+  await expect(card).toBeVisible();
+  await expect(card.locator('.card-title')).toContainText('AI指向温带雨林');
 });
 
-test('homepage renders title and podcast section', async ({ page }) => {
-  await expect(page.locator('.site-title')).toBeVisible();
-  await expect(page.locator('#podcasts .section-title')).toHaveText('播客');
+test('clicking anywhere on the card opens the detail page', async ({ page }) => {
+  await page.goto('/');
+  // Click the excerpt text — proves the WHOLE card is the link, not just the title.
+  await page.locator('.card .card-excerpt').click();
+  await expect(page).toHaveURL(/#\/ep01$/);
+  await expect(page.locator('.episode-title')).toContainText('AI指向温带雨林');
+  await expect(page.locator('.back a')).toBeVisible();
 });
 
-test('EP01 entry renders cover, title, and show notes', async ({ page }) => {
-  const ep = page.locator('#ep01');
-  await expect(ep).toBeVisible();
-  await expect(ep.locator('.episode-title')).toContainText('AI指向温带雨林');
-  await expect(ep.locator('.episode-title .epno')).toHaveText('EP01');
+test('detail renders show-note photos in order with captions', async ({ page }) => {
+  await page.goto('/#/ep01');
+  const shots = page.locator('.notes .shot');
+  await expect(shots).toHaveCount(5);
 
-  // Cover image actually loads (naturalWidth > 0)
-  const cover = ep.locator('img.cover');
-  await expect(cover).toBeVisible();
-  const w = await cover.evaluate((img: HTMLImageElement) => img.naturalWidth);
-  expect(w).toBeGreaterThan(0);
-
-  // At least a few show-note paragraphs render
-  await expect(ep.locator('.notes p').first()).toBeVisible();
-  expect(await ep.locator('.notes p').count()).toBeGreaterThan(1);
+  // First photo is the Inverness lichen shot, and it actually decodes.
+  const firstImg = shots.nth(0).locator('img');
+  await expect(firstImg).toHaveAttribute('src', /01-inverness-lichen\.jpeg/);
+  await firstImg.scrollIntoViewIfNeeded();
+  await expect
+    .poll(() => firstImg.evaluate((i: HTMLImageElement) => i.naturalWidth))
+    .toBeGreaterThan(0);
+  await expect(shots.nth(0).locator('figcaption')).toContainText('Inverness');
+  await expect(shots.nth(4).locator('figcaption')).toContainText('石头缝');
 });
 
-test('audio player points at the episode and loads metadata from the CDN', async ({ page }) => {
-  const audio = page.locator('#ep01 audio.player');
+test('audio player loads metadata from the CDN (seekable)', async ({ page }) => {
+  await page.goto('/#/ep01');
+  const audio = page.locator('audio.player');
   await expect(audio).toHaveAttribute('src', /media\.xyzcdn\.net.*\.m4a/);
-
-  // Force metadata load and confirm a real, finite duration comes back —
-  // proves the cross-origin CDN stream is reachable and seekable in WebKit.
   const duration = await audio.evaluate<number, HTMLAudioElement>(
     (el) =>
       new Promise((resolve, reject) => {
@@ -44,18 +51,22 @@ test('audio player points at the episode and loads metadata from the CDN', async
       }),
   );
   expect(Number.isFinite(duration)).toBe(true);
-  expect(duration).toBeGreaterThan(60); // longer than a minute
+  expect(duration).toBeGreaterThan(60);
 });
 
-test('external link goes to the Xiaoyuzhou episode', async ({ page }) => {
-  const link = page.locator('#ep01 .episode-links a');
-  await expect(link).toHaveAttribute(
+test('detail has the Xiaoyuzhou and Bilibili links', async ({ page }) => {
+  await page.goto('/#/ep01');
+  await expect(page.locator('.episode-links a')).toHaveAttribute('href', XYZ);
+  await expect(page.locator('.body-link a')).toHaveAttribute(
     'href',
-    'https://www.xiaoyuzhoufm.com/episode/6a62ccb96356eb2d9be785fa',
+    'https://www.bilibili.com/video/BV18Wgq6mEa1',
   );
-  await expect(link).toHaveAttribute('target', '_blank');
 });
 
-test('screenshot the built page', async ({ page }) => {
-  await page.screenshot({ path: 'test-results/site.png', fullPage: true });
+test('screenshots: home + detail', async ({ page }) => {
+  await page.goto('/');
+  await page.screenshot({ path: 'test-results/home.png', fullPage: true });
+  await page.goto('/#/ep01');
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: 'test-results/detail.png', fullPage: true });
 });
