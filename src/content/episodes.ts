@@ -7,9 +7,8 @@
 export const site = {
   title: '雨林观察者的博客',
   intro: '这里记录我的播客、写作和一些想法。',
-  // Avatar shown in the header. Replace public/avatar.svg with your own photo
-  // (e.g. public/avatar.jpg) and update this path.
-  avatar: '/avatar.svg',
+  // Avatar shown in the header (your photo at public/avatar.jpg).
+  avatar: '/avatar.jpg',
   links: [
     { label: '小宇宙', href: 'https://www.xiaoyuzhoufm.com/' },
     { label: 'GitHub', href: 'https://github.com/neg2sode' },

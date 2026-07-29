@@ -11,7 +11,7 @@ test('home shows site title and an episode card', async ({ page }) => {
   // Avatar renders in the header and actually decodes.
   const avatar = page.locator('.site-head .avatar');
   await expect(avatar).toBeVisible();
-  await expect(avatar).toHaveAttribute('src', /avatar\.svg/);
+  await expect(avatar).toHaveAttribute('src', /avatar\.jpg/);
 });
 
 test('clicking anywhere on the card opens the detail page', async ({ page }) => {
