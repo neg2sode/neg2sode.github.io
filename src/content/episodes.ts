@@ -7,6 +7,9 @@
 export const site = {
   title: '雨林观察者的博客',
   intro: '这里记录我的播客、写作和一些想法。',
+  // Avatar shown in the header. Replace public/avatar.svg with your own photo
+  // (e.g. public/avatar.jpg) and update this path.
+  avatar: '/avatar.svg',
   links: [
     { label: '小宇宙', href: 'https://www.xiaoyuzhoufm.com/' },
     { label: 'GitHub', href: 'https://github.com/neg2sode' },
@@ -18,6 +21,7 @@ export const site = {
 export type Block =
   | { type: 'text'; text: string } // one paragraph; use \n for line breaks
   | { type: 'photo'; src: string; caption: string } // NN-... file + its caption
+  | { type: 'bilibili'; bvid: string; href: string } // inset video player
   | { type: 'link'; href: string; label: string };
 
 export type Episode = {
@@ -85,9 +89,9 @@ export const episodes: Episode[] = [
         caption: '这是其中一处石头缝间看到的景象！每处都是一片不一样的天地',
       },
       {
-        type: 'link',
+        type: 'bilibili',
+        bvid: 'BV18Wgq6mEa1',
         href: 'https://www.bilibili.com/video/BV18Wgq6mEa1',
-        label: 'www.bilibili.com',
       },
       {
         type: 'text',

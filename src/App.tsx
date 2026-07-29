@@ -46,8 +46,11 @@ function Home() {
   return (
     <>
       <header className="site-head">
-        <h1 className="site-title">{site.title}</h1>
-        <p className="site-intro">{site.intro}</p>
+        <div className="site-head-text">
+          <h1 className="site-title">{site.title}</h1>
+          <p className="site-intro">{site.intro}</p>
+        </div>
+        <img className="avatar" src={site.avatar} alt="头像" width={84} height={84} />
       </header>
       <main>
         <section id="podcasts">
@@ -69,6 +72,29 @@ function BlockView({ block }: { block: Block }) {
         <img src={block.src} alt={block.caption} loading="lazy" />
         <figcaption>{block.caption}</figcaption>
       </figure>
+    );
+  }
+  if (block.type === 'bilibili') {
+    const src =
+      `https://player.bilibili.com/player.html?bvid=${block.bvid}` +
+      `&page=1&autoplay=0&danmaku=0&high_quality=1&as_wide=1`;
+    return (
+      <>
+        <div className="video">
+          <iframe
+            src={src}
+            title="Bilibili 视频"
+            scrolling="no"
+            allowFullScreen
+            allow="fullscreen"
+          />
+        </div>
+        <p className="video-fallback">
+          <a href={block.href} target="_blank" rel="noreferrer">
+            在 Bilibili 打开 ↗
+          </a>
+        </p>
+      </>
     );
   }
   if (block.type === 'link') {

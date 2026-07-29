@@ -8,6 +8,10 @@ test('home shows site title and an episode card', async ({ page }) => {
   const card = page.locator('.card').first();
   await expect(card).toBeVisible();
   await expect(card.locator('.card-title')).toContainText('AI指向温带雨林');
+  // Avatar renders in the header and actually decodes.
+  const avatar = page.locator('.site-head .avatar');
+  await expect(avatar).toBeVisible();
+  await expect(avatar).toHaveAttribute('src', /avatar\.svg/);
 });
 
 test('clicking anywhere on the card opens the detail page', async ({ page }) => {
@@ -54,10 +58,16 @@ test('audio player loads metadata from the CDN (seekable)', async ({ page }) => 
   expect(duration).toBeGreaterThan(60);
 });
 
-test('detail has the Xiaoyuzhou and Bilibili links', async ({ page }) => {
+test('detail has the Xiaoyuzhou link and an inset Bilibili player', async ({ page }) => {
   await page.goto('/#/ep01');
   await expect(page.locator('.episode-links a')).toHaveAttribute('href', XYZ);
-  await expect(page.locator('.body-link a')).toHaveAttribute(
+  // Embedded player iframe points at Bilibili with the right BV id.
+  await expect(page.locator('.video iframe')).toHaveAttribute(
+    'src',
+    /player\.bilibili\.com\/player\.html\?bvid=BV18Wgq6mEa1/,
+  );
+  // Fallback link to open on Bilibili directly.
+  await expect(page.locator('.video-fallback a')).toHaveAttribute(
     'href',
     'https://www.bilibili.com/video/BV18Wgq6mEa1',
   );
