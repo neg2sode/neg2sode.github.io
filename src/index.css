@@ -278,6 +278,103 @@ a:hover {
   color: var(--line);
 }
 
+/* Andare (阳踏) support page */
+.app-head {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+}
+.app-icon {
+  flex: none;
+  width: 120px;
+  height: 120px;
+  /* The exported icon already has the iOS squircle mask baked in (transparent
+     corners), so no border-radius — drop-shadow follows the alpha shape. */
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.16));
+}
+.app-head-text {
+  min-width: 0;
+}
+.app-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.app-name-zh {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.app-tagline {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.app-tagline-zh {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.app-showcase {
+  margin: 24px 0 0;
+}
+.app-showcase img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  border: 1px solid var(--line);
+}
+
+.app-section {
+  margin-top: 28px;
+}
+.app-section .body-text,
+.app-block p {
+  margin: 0 0 8px;
+}
+.app-zh {
+  color: var(--muted);
+  font-size: 14px;
+}
+.app-block .app-zh,
+.feature .app-zh {
+  margin: 0;
+}
+
+.feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.feature {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 14px 16px;
+}
+.feature-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+.feature-title .app-zh {
+  font-weight: 400;
+}
+.feature-body {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.app-meta {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 @media (max-width: 480px) {
   .wrap {
     padding: 40px 16px 72px;
@@ -285,5 +382,12 @@ a:hover {
   .cover {
     width: 72px;
     height: 72px;
+  }
+  .app-head {
+    gap: 16px;
+  }
+  .app-icon {
+    width: 96px;
+    height: 96px;
   }
 }

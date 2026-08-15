@@ -79,4 +79,39 @@ test('screenshots: home + detail', async ({ page }) => {
   await page.goto('/#/ep01');
   await page.waitForLoadState('networkidle');
   await page.screenshot({ path: 'test-results/detail.png', fullPage: true });
+  await page.goto('/#/andare');
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: 'test-results/andare.png', fullPage: true });
+});
+
+test('andare support page shows app name, icon and contact', async ({ page }) => {
+  await page.goto('/#/andare');
+  await expect(page.locator('.app-name')).toContainText('Andare');
+  await expect(page.locator('.app-name-zh')).toHaveText('阳踏');
+
+  // App icon actually decodes.
+  const icon = page.locator('.app-icon');
+  await expect(icon).toHaveAttribute('src', /andare\/icon\.png/);
+  await expect
+    .poll(() => icon.evaluate((i: HTMLImageElement) => i.naturalWidth))
+    .toBeGreaterThan(0);
+
+  // Showcase image renders and decodes.
+  const showcase = page.locator('.app-showcase img');
+  await expect(showcase).toHaveAttribute('src', /andare_showcase\.jpg/);
+  await expect
+    .poll(() => showcase.evaluate((i: HTMLImageElement) => i.naturalWidth))
+    .toBeGreaterThan(0);
+
+  // Support contact is a mailto link.
+  await expect(page.locator('.app-section a[href^="mailto:"]').first()).toBeVisible();
+  // GitHub repo link present.
+  await expect(page.locator('.app-meta a')).toHaveAttribute('href', 'https://github.com/neg2sode/Andare');
+});
+
+test('home nav links to the andare page', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.site-nav a[href="#/andare"]').click();
+  await expect(page).toHaveURL(/#\/andare$/);
+  await expect(page.locator('.app-name')).toContainText('Andare');
 });

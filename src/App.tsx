@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { site, episodes, type Episode, type Block } from './content/episodes';
+import { andare } from './content/andare';
 
 // ── Tiny hash router (GitHub Pages friendly: no server config needed) ──────────
 function useHashRoute() {
@@ -49,6 +50,11 @@ function Home() {
         <div className="site-head-text">
           <h1 className="site-title">{site.title}</h1>
           <p className="site-intro">{site.intro}</p>
+          <nav className="site-nav">
+            <a href="#/">播客</a>
+            <span className="sep"> · </span>
+            <a href="#/andare">Andare 应用</a>
+          </nav>
         </div>
         <img className="avatar" src={site.avatar} alt="头像" width={84} height={84} />
       </header>
@@ -60,6 +66,81 @@ function Home() {
           ))}
         </section>
       </main>
+    </>
+  );
+}
+
+// ── Andare (阳踏) support page ─────────────────────────────────────────────────
+function AndarePage() {
+  return (
+    <>
+      <p className="back">
+        <a href="#/">← 返回</a>
+      </p>
+
+      <header className="app-head">
+        <img
+          className="app-icon"
+          src={andare.icon}
+          alt={`${andare.name} 图标`}
+          width={120}
+          height={120}
+        />
+        <div className="app-head-text">
+          <h1 className="app-name">
+            {andare.name} <span className="app-name-zh">{andare.nameZh}</span>
+          </h1>
+          <p className="app-tagline">{andare.tagline}</p>
+          <p className="app-tagline-zh">{andare.taglineZh}</p>
+        </div>
+      </header>
+
+      <figure className="app-showcase">
+        <img src={andare.showcase} alt="Andare 界面展示" loading="lazy" />
+      </figure>
+
+      <section className="app-section">
+        <h2 className="section-title">关于 · About</h2>
+        {andare.about.map((p, i) => (
+          <div className="app-block" key={i}>
+            <p className="body-text">{p}</p>
+            <p className="app-zh">{andare.aboutZh[i]}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="app-section">
+        <h2 className="section-title">功能 · Features</h2>
+        <ul className="feature-list">
+          {andare.features.map((f) => (
+            <li className="feature" key={f.title}>
+              <div className="feature-title">
+                {f.title} <span className="app-zh">{f.titleZh}</span>
+              </div>
+              <p className="feature-body">{f.body}</p>
+              <p className="app-zh">{f.bodyZh}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="app-section">
+        <h2 className="section-title">支持 · Support</h2>
+        <p className="body-text">
+          Questions, feedback or bug reports? Email{' '}
+          <a href={`mailto:${andare.supportEmail}`}>{andare.supportEmail}</a>.
+        </p>
+        <p className="app-zh">
+          有问题、反馈或 Bug？请发邮件到{' '}
+          <a href={`mailto:${andare.supportEmail}`}>{andare.supportEmail}</a>。
+        </p>
+        <p className="app-meta">
+          {andare.platform} · {andare.price} ·{' '}
+          <a href={andare.github} target="_blank" rel="noreferrer">
+            GitHub ↗
+          </a>
+        </p>
+      </section>
     </>
   );
 }
@@ -152,24 +233,36 @@ function EpisodePage({ ep }: { ep: Episode }) {
   );
 }
 
+function SiteFooter() {
+  return (
+    <footer className="site-foot">
+      {site.links.map((l, i) => (
+        <span key={l.href}>
+          {i > 0 && <span className="sep"> · </span>}
+          <a href={l.href} target="_blank" rel="noreferrer">
+            {l.label}
+          </a>
+        </span>
+      ))}
+    </footer>
+  );
+}
+
 export default function App() {
   const route = useHashRoute();
-  const current = episodes.find((ep) => ep.id === route);
+
+  let page;
+  if (route === 'andare') {
+    page = <AndarePage />;
+  } else {
+    const current = episodes.find((ep) => ep.id === route);
+    page = current ? <EpisodePage ep={current} /> : <Home />;
+  }
 
   return (
     <div className="wrap">
-      {current ? <EpisodePage ep={current} /> : <Home />}
-
-      <footer className="site-foot">
-        {site.links.map((l, i) => (
-          <span key={l.href}>
-            {i > 0 && <span className="sep"> · </span>}
-            <a href={l.href} target="_blank" rel="noreferrer">
-              {l.label}
-            </a>
-          </span>
-        ))}
-      </footer>
+      {page}
+      <SiteFooter />
     </div>
   );
 }
