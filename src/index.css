@@ -338,35 +338,8 @@ a:hover {
   color: var(--muted);
   font-size: 14px;
 }
-.app-block .app-zh,
-.feature .app-zh {
+.app-block .app-zh {
   margin: 0;
-}
-
-.feature-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-.feature {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--card);
-  padding: 14px 16px;
-}
-.feature-title {
-  font-weight: 600;
-  font-size: 15px;
-  margin: 0 0 4px;
-}
-.feature-title .app-zh {
-  font-weight: 400;
-}
-.feature-body {
-  margin: 0 0 4px;
-  font-size: 15px;
 }
 
 .app-meta {

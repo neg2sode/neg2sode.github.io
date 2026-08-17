@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { site, episodes, type Episode, type Block } from './content/episodes';
 import { andare } from './content/andare';
+import { andarePrivacy } from './content/andare-privacy';
 
 // ── Tiny hash router (GitHub Pages friendly: no server config needed) ──────────
 function useHashRoute() {
@@ -110,21 +111,6 @@ function AndarePage() {
       </section>
 
       <section className="app-section">
-        <h2 className="section-title">功能 · Features</h2>
-        <ul className="feature-list">
-          {andare.features.map((f) => (
-            <li className="feature" key={f.title}>
-              <div className="feature-title">
-                {f.title} <span className="app-zh">{f.titleZh}</span>
-              </div>
-              <p className="feature-body">{f.body}</p>
-              <p className="app-zh">{f.bodyZh}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="app-section">
         <h2 className="section-title">支持 · Support</h2>
         <p className="body-text">
           Questions, feedback or bug reports? Email{' '}
@@ -138,9 +124,54 @@ function AndarePage() {
           {andare.platform} · {andare.price} ·{' '}
           <a href={andare.github} target="_blank" rel="noreferrer">
             GitHub ↗
-          </a>
+          </a>{' '}
+          · <a href="#/andare/privacy">Privacy Policy · 隐私政策</a>
         </p>
       </section>
+    </>
+  );
+}
+
+// ── Andare privacy policy page ────────────────────────────────────────────────
+function PrivacyPage() {
+  return (
+    <>
+      <p className="back">
+        <a href="#/andare">← 返回</a>
+      </p>
+
+      <header className="app-head">
+        <img
+          className="app-icon"
+          src={andare.icon}
+          alt={`${andare.name} 图标`}
+          width={120}
+          height={120}
+        />
+        <div className="app-head-text">
+          <h1 className="app-name">
+            {andare.name} · Privacy Policy
+            <span className="app-name-zh"> {andare.nameZh} · 隐私政策</span>
+          </h1>
+          <p className="app-tagline">
+            Last updated · 最近更新：{andarePrivacy.updated}
+          </p>
+        </div>
+      </header>
+
+      {andarePrivacy.sections.map((s) => (
+        <section className="app-section" key={s.title}>
+          <h2 className="section-title">
+            {s.title} · {s.titleZh}
+          </h2>
+          {s.body.map((p, j) => (
+            <div className="app-block" key={j}>
+              <p className="body-text">{p}</p>
+              <p className="app-zh">{s.bodyZh[j]}</p>
+            </div>
+          ))}
+        </section>
+      ))}
     </>
   );
 }
@@ -254,6 +285,8 @@ export default function App() {
   let page;
   if (route === 'andare') {
     page = <AndarePage />;
+  } else if (route === 'andare/privacy') {
+    page = <PrivacyPage />;
   } else {
     const current = episodes.find((ep) => ep.id === route);
     page = current ? <EpisodePage ep={current} /> : <Home />;
