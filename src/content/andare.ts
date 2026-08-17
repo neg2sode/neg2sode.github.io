@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  Andare (阳踏) support page content.
 //  App Store requires a support URL; this page lives at /#/andare on the site.
-//  Edit the strings below — no code knowledge needed. Bilingual on purpose:
-//  English first (App Store reviewers / international users), Chinese second.
+//  Edit the strings below — no code knowledge needed. Each string is provided
+//  in English and Chinese; the site shows one based on the visitor's language.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const andare = {

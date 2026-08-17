@@ -6,12 +6,14 @@
 
 export const site = {
   title: '雨林观察者的博客',
+  titleEn: "The Rainforest Observer",
   intro: '这里记录我的播客、写作和一些想法。',
+  introEn: 'My podcasts, writing and thoughts.',
   // Avatar shown in the header (your photo at public/avatar.jpg).
   avatar: '/avatar.jpg',
   links: [
-    { label: '小宇宙', href: 'https://www.xiaoyuzhoufm.com/' },
-    { label: 'GitHub', href: 'https://github.com/neg2sode' },
+    { label: '小宇宙', labelEn: 'Xiaoyuzhou', href: 'https://www.xiaoyuzhoufm.com/' },
+    { label: 'GitHub', labelEn: 'GitHub', href: 'https://github.com/neg2sode' },
   ],
 };
 
@@ -31,6 +33,7 @@ export type Episode = {
   host: string;
   date: string; // YYYY-MM-DD
   duration: string;
+  durationEn: string; // same duration, English unit ("51 min")
   cover: string; // path under /public
   audioUrl: string; // direct audio file (m4a/mp3)
   xiaoyuzhouUrl: string;
@@ -47,6 +50,7 @@ export const episodes: Episode[] = [
     host: '谷起',
     date: '2026-07-24',
     duration: '51 分钟',
+    durationEn: '51 min',
     cover: '/ep01-cover.png',
     audioUrl:
       'https://media.xyzcdn.net/69e5d3f47918b67d1670d4f2/liVMqDJCK_SeGuE7SvcTHnQkbkZt.m4a',

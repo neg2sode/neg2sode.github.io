@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  Andare (阳踏) privacy policy content.
 //  Lives at /#/andare/privacy on the site. App Store requires a privacy URL.
-//  Edit the strings below — no code knowledge needed. Bilingual on purpose:
-//  English first, Chinese second, one paragraph per array item (same order).
+//  Edit the strings below — no code knowledge needed. Each section holds English
+//  and Chinese; the site shows one based on the visitor's language.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type PrivacySection = {

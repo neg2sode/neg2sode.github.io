@@ -106,7 +106,9 @@ test('andare support page shows app name, icon and contact', async ({ page }) =>
   // Support contact is a mailto link.
   await expect(page.locator('.app-section a[href^="mailto:"]').first()).toBeVisible();
   // GitHub repo link present.
-  await expect(page.locator('.app-meta a')).toHaveAttribute('href', 'https://github.com/neg2sode/Andare');
+  await expect(
+    page.locator('.app-meta a[href="https://github.com/neg2sode/Andare"]'),
+  ).toHaveAttribute('href', 'https://github.com/neg2sode/Andare');
 });
 
 test('home nav links to the andare page', async ({ page }) => {
@@ -114,4 +116,40 @@ test('home nav links to the andare page', async ({ page }) => {
   await page.locator('.site-nav a[href="#/andare"]').click();
   await expect(page).toHaveURL(/#\/andare$/);
   await expect(page.locator('.app-name')).toContainText('Andare');
+});
+
+// The site shows one language based on system language: zh → Chinese, else English.
+test.describe('localisation (English)', () => {
+  test.use({ locale: 'en-US' });
+
+  test('renders English UI for a non-Chinese system language', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.site-title')).toHaveText('The Rainforest Observer');
+    await expect(page.locator('.site-nav')).toContainText('Podcast');
+    await expect(page.locator('.site-nav')).toContainText('Andare app');
+
+    await page.goto('/#/andare');
+    await expect(page.locator('.app-name')).toHaveText('Andare');
+    await expect(page.locator('.app-tagline')).toHaveText(
+      'Cadence for cycling, running and walking, with just your iPhone.',
+    );
+    await expect(page.locator('.back a')).toHaveText('← Home');
+
+    await page.goto('/#/andare/privacy');
+    await expect(page.locator('.app-name')).toContainText('Privacy Policy');
+    await expect(page.locator('.app-section .section-title').first()).toHaveText('Overview');
+  });
+});
+
+test('language toggle switches the UI and persists', async ({ page }) => {
+  await page.goto('/');
+  const toggle = page.locator('.lang-toggle');
+  // Default locale is zh-CN, so the button offers English.
+  await expect(toggle).toHaveText('English');
+  await toggle.click();
+  await expect(page.locator('.site-title')).toHaveText('The Rainforest Observer');
+  await expect(toggle).toHaveText('中文');
+  // The manual choice survives a reload (saved to localStorage).
+  await page.reload();
+  await expect(page.locator('.site-title')).toHaveText('The Rainforest Observer');
 });

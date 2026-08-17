@@ -6,6 +6,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:5173',
+    // The site's primary audience is Chinese; run tests in zh so content
+    // assertions hit the Chinese strings. See the localisation test for en.
+    locale: 'zh-CN',
     trace: 'on-first-retry',
   },
   // Boot the Vite dev server for the test run (reuses one if already running).

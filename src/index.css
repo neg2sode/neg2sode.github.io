@@ -274,6 +274,26 @@ a:hover {
   color: var(--muted);
   font-size: 14px;
 }
+
+/* Fixed language toggle (top-right) */
+.lang-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  font: inherit;
+  font-size: 14px;
+  color: var(--accent-ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.lang-toggle:hover {
+  border-color: var(--accent);
+}
 .sep {
   color: var(--line);
 }
@@ -308,13 +328,8 @@ a:hover {
   color: var(--muted);
 }
 .app-tagline {
-  margin: 0 0 4px;
-  font-size: 15px;
-}
-.app-tagline-zh {
   margin: 0;
-  font-size: 14px;
-  color: var(--muted);
+  font-size: 15px;
 }
 
 .app-showcase {
@@ -330,16 +345,8 @@ a:hover {
 .app-section {
   margin-top: 28px;
 }
-.app-section .body-text,
-.app-block p {
+.app-section .body-text {
   margin: 0 0 8px;
-}
-.app-zh {
-  color: var(--muted);
-  font-size: 14px;
-}
-.app-block .app-zh {
-  margin: 0;
 }
 
 .app-meta {
