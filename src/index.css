@@ -22,8 +22,8 @@
   --accent-bright: #2fd4bd;
 
   /* Body typeface — one knob for the whole site. */
-  --font-body: 'Source Serif 4 Variable', 'Songti SC', 'Noto Serif CJK SC',
-    'Noto Serif SC', 'STSong', 'Source Han Serif SC', Georgia, serif;
+  --font-body: 'Source Serif 4 Variable', 'Noto Serif SC', 'Songti SC',
+    'Noto Serif CJK SC', 'STSong', 'Source Han Serif SC', Georgia, serif;
 
   color-scheme: dark;
   background: var(--bg);
@@ -43,7 +43,7 @@ img {
 html {
   /* Big reading type that grows with the window. Everything below is in rem,
      so the whole page steps up together. */
-  font-size: clamp(22px, 1vw + 8px, 27px);
+  font-size: clamp(21px, 1vw + 7px, 26px);
   line-height: 1.6;
   overflow-wrap: break-word;
   -webkit-text-size-adjust: 100%;
@@ -91,7 +91,7 @@ p {
 .wrap {
   max-width: 64ch;
   margin: 0 auto;
-  padding: 4.5rem 1.5rem 6rem;
+  padding: 3.25rem clamp(1.1rem, 3.5vw, 1.5rem) 5.5rem;
 }
 
 /* ── Header (home) ─────────────────────────────────────────────────────────── */
@@ -324,12 +324,13 @@ p {
   color: var(--faint);
 }
 
-/* ── Fixed language toggle ─────────────────────────────────────────────────── */
+/* ── Language toggle: top of the page only (it scrolls away with the content) ─ */
+.topline {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+}
 .lang-toggle {
-  position: fixed;
-  top: 0.9rem;
-  right: 0.9rem;
-  z-index: 10;
   font: inherit;
   font-size: 0.72rem;
   color: var(--accent);
@@ -405,7 +406,7 @@ p {
 /* ── Narrow screens: almost no side padding, text fills the glass ──────────── */
 @media (max-width: 600px) {
   .wrap {
-    padding: 2.75rem 0.45rem 3.5rem;
+    padding: 2.25rem 1rem 3.25rem;
   }
   .site-head {
     gap: 0.9rem;
@@ -437,7 +438,7 @@ p {
   .shot img,
   .video,
   .app-showcase img {
-    border-radius: 2px;
+    border-radius: 4px;
   }
   .app-head {
     gap: 1rem;

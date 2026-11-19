@@ -6,6 +6,7 @@
     "dev": "node scripts/generate-feed.mjs && vite",
     "build": "node scripts/generate-feed.mjs && vite build",
     "feed": "node scripts/generate-feed.mjs",
+    "fonts": "node scripts/build-cjk-font.mjs",
     "preview": "vite preview",
     "test": "playwright test"
   },

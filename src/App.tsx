@@ -382,12 +382,12 @@ export default function App() {
   }
 
   return (
-    <>
-      <LangToggle />
-      <div className="wrap">
-        {page}
-        <SiteFooter />
+    <div className="wrap">
+      <div className="topline">
+        <LangToggle />
       </div>
-    </>
+      {page}
+      <SiteFooter />
+    </div>
   );
 }

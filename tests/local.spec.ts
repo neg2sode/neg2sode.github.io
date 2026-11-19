@@ -236,6 +236,19 @@ test.describe('localisation (English)', () => {
   });
 });
 
+test('the language toggle sits at the top and scrolls away', async ({ page }) => {
+  await page.goto('/#/ep01');
+  const toggle = page.locator('.lang-toggle');
+  await expect(toggle).toBeVisible();
+  const top = await toggle.evaluate((el) => el.getBoundingClientRect().top);
+  expect(top).toBeLessThan(120);
+  // It is in the flow, not pinned: scrolling pushes it out of the viewport.
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await expect
+    .poll(() => toggle.evaluate((el) => el.getBoundingClientRect().bottom))
+    .toBeLessThan(0);
+});
+
 test('language toggle switches the UI and persists', async ({ page }) => {
   await page.goto('/');
   const toggle = page.locator('.lang-toggle');
@@ -310,34 +323,67 @@ test('type is large on desktop and the column keeps a readable measure', async (
 }) => {
   await page.goto('/#/ep01');
   const root = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
-  expect(root).toBeGreaterThanOrEqual(22);
+  expect(root).toBeGreaterThanOrEqual(20);
   const body = page.locator('.notes .body-text').first();
   const fontPx = await body.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-  expect(fontPx).toBeGreaterThanOrEqual(22);
+  expect(fontPx).toBeGreaterThanOrEqual(20);
 });
 
-test('narrow screens: almost no side padding, text fills the glass', async ({ page }) => {
+test('narrow screens keep a real (but modest) padding', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#/ep01');
   const padding = await page.locator('.wrap').evaluate((el) => {
     const s = getComputedStyle(el);
     return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
   });
-  expect(padding.left).toBeLessThanOrEqual(12);
-  expect(padding.right).toBeLessThanOrEqual(12);
+  // Breathing room, but the column still owns most of the screen.
+  expect(padding.left).toBeGreaterThanOrEqual(14);
+  expect(padding.left).toBeLessThanOrEqual(32);
+  expect(padding.left).toBe(padding.right);
 
-  // Body text spans nearly the whole viewport width.
   const [bodyBox, viewport] = await Promise.all([
     page.locator('.notes .body-text').first().boundingBox(),
     page.evaluate(() => window.innerWidth),
   ]);
-  expect(bodyBox && bodyBox.width / viewport > 0.9).toBe(true);
+  const ratio = bodyBox ? bodyBox.width / viewport : 0;
+  expect(ratio).toBeGreaterThan(0.85);
+  expect(ratio).toBeLessThan(0.96);
+});
 
-  // A show-note photo runs edge to edge too.
-  const shot = page.locator('.notes .shot img').first();
-  await shot.scrollIntoViewIfNeeded();
-  const shotBox = await shot.boundingBox();
-  expect(shotBox && shotBox.width / viewport > 0.9).toBe(true);
+test('every Chinese glyph on the page comes from the bundled font', async ({ page }) => {
+  // If new content adds characters, this fails until `npm run fonts` regenerates
+  // the subset — which is exactly when you want to know.
+  for (const route of ['/', '/#/ep01', '/#/andare', '/#/andare/privacy']) {
+    await page.goto(route);
+    await page.evaluate(() => document.fonts.ready);
+    const uncovered = await page.evaluate(() => {
+      const chars = new Set<string>();
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        for (const ch of (n as Text).textContent ?? '') {
+          if (ch.codePointAt(0)! > 0x7f) chars.add(ch);
+        }
+      }
+      return [...chars].filter((ch) => !document.fonts.check('1em "Noto Serif SC"', ch));
+    });
+    expect(uncovered, `${route} → run npm run fonts`).toEqual([]);
+  }
+});
+
+test('the Chinese serif is self-hosted, so every device shows it', async ({ page }) => {
+  await page.goto('/#/ep01');
+  await page.evaluate(() => document.fonts.ready);
+  // The bundled subset really is loaded and can draw Chinese with it.
+  const loaded = await page.evaluate(() => document.fonts.check('1em "Noto Serif SC"', '雨林观察者'));
+  expect(loaded).toBe(true);
+  const res = await page.request.get('/fonts/noto-serif-sc-subset.woff2');
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type']).toMatch(/font/);
+  // The stack puts it right after the Latin serif, before any system fallback.
+  const stack = await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(stack.indexOf('Source Serif 4')).toBeGreaterThanOrEqual(0);
+  expect(stack.indexOf('Noto Serif SC')).toBeGreaterThan(stack.indexOf('Source Serif 4'));
+  expect(stack.indexOf('Noto Serif SC')).toBeLessThan(stack.indexOf('Songti SC'));
 });
 
 // Scroll the page in steps so lazy images start loading, then come back up.
