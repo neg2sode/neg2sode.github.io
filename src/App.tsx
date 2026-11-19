@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { site, episodes, type Episode, type Block } from './content/episodes';
+import {
+  site,
+  episodes,
+  neighbours,
+  type Episode,
+  type Block,
+} from './content/episodes';
 import { andare } from './content/andare';
 import { andarePrivacy } from './content/andare-privacy';
 import { useLocale, pick, type Locale } from './locale';
@@ -19,33 +25,39 @@ function useHashRoute() {
   return hash.replace(/^#\/?/, ''); // '' for home, 'ep01' for a detail route
 }
 
-function meta(ep: Episode, locale: Locale) {
-  return `${ep.show} · ${pick(locale, 'Host', '主播')} ${ep.host} · ${ep.date} · ${pick(
-    locale,
-    ep.durationEn,
-    ep.duration,
-  )}`;
+function episodeMeta(ep: Episode, locale: Locale, includeShow = true): string[] {
+  const parts = [
+    `${pick(locale, 'Host', '主播')} ${pick(locale, ep.hostEn, ep.host)}`,
+    ep.date,
+    pick(locale, ep.durationEn, ep.duration),
+  ];
+  if (includeShow) parts.unshift(pick(locale, ep.showEn, ep.show));
+  return parts;
 }
 
-// ── Home: list of clickable episode cards ──────────────────────────────────────
+// Small grey metadata run: parts are kept whole, the "·" never starts a line.
+function MetaLine({ parts, className }: { parts: string[]; className: string }) {
+  return (
+    <p className={className}>
+      {parts.map((part, i) => (
+        <span className="meta-part" key={i}>
+          {part}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+// ── Home: episode cards holding the content itself (no artwork) ────────────────
 function EpisodeCard({ ep }: { ep: Episode }) {
-  const { locale, t } = useLocale();
+  const { locale } = useLocale();
   return (
     <a className="card" href={`#/${ep.id}`}>
-      <img
-        className="cover"
-        src={ep.cover}
-        alt={`${ep.number} ${t('cover', '封面')}`}
-        width={72}
-        height={72}
-      />
-      <div className="card-body">
-        <h3 className="card-title">
-          <span className="epno">{ep.number}</span> {ep.title}
-        </h3>
-        <p className="card-sub">{meta(ep, locale)}</p>
-        <p className="card-excerpt">{ep.excerpt}</p>
-      </div>
+      <h3 className="card-title">
+        <span className="epno">{ep.number}</span> {pick(locale, ep.titleEn, ep.title)}
+      </h3>
+      <MetaLine className="card-sub" parts={episodeMeta(ep, locale)} />
+      <p className="card-excerpt">{pick(locale, ep.excerptEn, ep.excerpt)}</p>
     </a>
   );
 }
@@ -59,7 +71,9 @@ function Home() {
           <h1 className="site-title">{t(site.titleEn, site.title)}</h1>
           <p className="site-intro">{t(site.introEn, site.intro)}</p>
           <nav className="site-nav">
-            <a href="#/">{t('Podcast', '播客')}</a>
+            <a href={neighbours[0].href} target="_blank" rel="noreferrer">
+              {t(neighbours[0].title, neighbours[0].titleZh)}
+            </a>
             <span className="sep"> · </span>
             <a href="#/andare">{t('Andare app', 'Andare 应用')}</a>
           </nav>
@@ -68,8 +82,8 @@ function Home() {
           className="avatar"
           src={site.avatar}
           alt={t('avatar', '头像')}
-          width={84}
-          height={84}
+          width={92}
+          height={92}
         />
       </header>
       <main>
@@ -138,7 +152,7 @@ function AndarePage() {
           {t('.', '。')}
         </p>
         <p className="app-meta">
-          {andare.platform} · {andare.price} ·{' '}
+          {andare.platform} · {t(andare.price, '免费')} ·{' '}
           <a href={andare.github} target="_blank" rel="noreferrer">
             GitHub ↗
           </a>{' '}
@@ -194,14 +208,22 @@ function PrivacyPage() {
   );
 }
 
-// ── Detail: full episode page ──────────────────────────────────────────────────
+// ── Detail: full episode page — plain text on the background, no card ─────────
 function BlockView({ block }: { block: Block }) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   if (block.type === 'photo') {
     return (
       <figure className="shot">
-        <img src={block.src} alt={block.caption} loading="lazy" />
-        <figcaption>{block.caption}</figcaption>
+        <img
+          src={block.src}
+          alt={pick(locale, block.captionEn ?? block.caption, block.caption)}
+          width={1600}
+          height={1200}
+          loading="lazy"
+        />
+        <figcaption>
+          {pick(locale, block.captionEn ?? block.caption, block.caption)}
+        </figcaption>
       </figure>
     );
   }
@@ -232,12 +254,12 @@ function BlockView({ block }: { block: Block }) {
     return (
       <p className="body-link">
         <a href={block.href} target="_blank" rel="noreferrer">
-          {block.label} ↗
+          {pick(locale, block.labelEn ?? block.label, block.label)} ↗
         </a>
       </p>
     );
   }
-  return <p className="body-text">{block.text}</p>;
+  return <p className="body-text">{pick(locale, block.textEn ?? block.text, block.text)}</p>;
 }
 
 function EpisodePage({ ep }: { ep: Episode }) {
@@ -248,26 +270,31 @@ function EpisodePage({ ep }: { ep: Episode }) {
         <a href="#/">← {t('Home', '去主页')}</a>
       </p>
       <article className="episode" id={ep.id}>
-        <div className="episode-head">
+        <header className="episode-head">
           <img
             className="cover cover-lg"
             src={ep.cover}
             alt={`${ep.number} ${t('cover', '封面')}`}
-            width={112}
-            height={112}
+            width={104}
+            height={104}
           />
           <div className="episode-meta">
-            <h1 className="episode-title">
-              <span className="epno">{ep.number}</span> {ep.title}
-            </h1>
-            <p className="episode-sub">{meta(ep, locale)}</p>
+            <p className="episode-kicker">
+              <span className="epno">{ep.number}</span> ·{' '}
+              {pick(locale, ep.showEn, ep.show)}
+            </p>
+            <h1 className="episode-title">{pick(locale, ep.titleEn, ep.title)}</h1>
+            <MetaLine
+              className="episode-sub"
+              parts={episodeMeta(ep, locale, false)}
+            />
             <p className="episode-links">
               <a href={ep.xiaoyuzhouUrl} target="_blank" rel="noreferrer">
                 {t('Listen on Xiaoyuzhou', '在小宇宙收听')} ↗
               </a>
             </p>
           </div>
-        </div>
+        </header>
 
         <audio className="player" controls preload="metadata" src={ep.audioUrl}>
           {isZh ? (
@@ -319,12 +346,30 @@ function SiteFooter() {
           </a>
         </span>
       ))}
+      <span className="sep"> · </span>
+      <a href="/feed.xml" type="application/rss+xml">
+        RSS
+      </a>
     </footer>
   );
 }
 
 export default function App() {
   const route = useHashRoute();
+  const { isZh, t } = useLocale();
+
+  // Keep the tab title and description in step with the visible language.
+  useEffect(() => {
+    document.title = t(site.titleEn, site.title);
+    document.documentElement.lang = isZh ? 'zh-CN' : 'en';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) {
+      desc.setAttribute(
+        'content',
+        t(site.introEn, site.intro),
+      );
+    }
+  }, [isZh, t]);
 
   let page;
   if (route === 'andare') {

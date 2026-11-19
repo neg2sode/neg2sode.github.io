@@ -8,3 +8,12 @@ playwright/.cache/
 
 # Local Claude Code settings (personal, not shared)
 .claude/settings.local.json
+
+# Personal plan / notes — kept private, never committed, never published
+SITE-PLAN.md
+
+# Generated at the start of `npm run dev` / `npm run build`
+public/feed.xml
+
+# Local archive of retired pages (see SITE-PLAN.md)
+archive/

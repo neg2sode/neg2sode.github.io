@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node scripts/generate-feed.mjs && vite",
+    "build": "node scripts/generate-feed.mjs && vite build",
+    "feed": "node scripts/generate-feed.mjs",
     "preview": "vite preview",
     "test": "playwright test"
   },
