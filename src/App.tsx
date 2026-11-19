@@ -70,13 +70,6 @@ function Home() {
         <div className="site-head-text">
           <h1 className="site-title">{t(site.titleEn, site.title)}</h1>
           <p className="site-intro">{t(site.introEn, site.intro)}</p>
-          <nav className="site-nav">
-            <a href={neighbours[0].href} target="_blank" rel="noreferrer">
-              {t(neighbours[0].title, neighbours[0].titleZh)}
-            </a>
-            <span className="sep"> · </span>
-            <a href="#/andare">{t('Andare app', 'Andare 应用')}</a>
-          </nav>
         </div>
         <img
           className="avatar"
@@ -86,6 +79,16 @@ function Home() {
           height={92}
         />
       </header>
+      <div className="site-sub">
+        <nav className="site-nav">
+          <a href={neighbours[0].href} target="_blank" rel="noreferrer">
+            {t(neighbours[0].title, neighbours[0].titleZh)}
+          </a>
+          <span className="sep"> · </span>
+          <a href="#/andare">{t('Andare app', 'Andare 应用')}</a>
+        </nav>
+        <LangToggle />
+      </div>
       <main>
         <section id="podcasts">
           <h2 className="section-title">{t('Podcast', '播客')}</h2>
@@ -98,14 +101,24 @@ function Home() {
   );
 }
 
+// The top row of a non-home page: "back" on the left, language on the right.
+function PageTop({ to, label }: { to: string; label: string }) {
+  return (
+    <div className="page-top">
+      <a className="back" href={to}>
+        ← {label}
+      </a>
+      <LangToggle />
+    </div>
+  );
+}
+
 // ── Andare (阳踏) support page ─────────────────────────────────────────────────
 function AndarePage() {
   const { isZh, t } = useLocale();
   return (
     <>
-      <p className="back">
-        <a href="#/">← {t('Home', '去主页')}</a>
-      </p>
+      <PageTop to="#/" label={t('Home', '去主页')} />
 
       <header className="app-head">
         <img
@@ -168,9 +181,7 @@ function PrivacyPage() {
   const { isZh, t } = useLocale();
   return (
     <>
-      <p className="back">
-        <a href="#/andare">← Andare</a>
-      </p>
+      <PageTop to="#/andare" label="Andare" />
 
       <header className="app-head">
         <img
@@ -266,9 +277,7 @@ function EpisodePage({ ep }: { ep: Episode }) {
   const { locale, isZh, t } = useLocale();
   return (
     <>
-      <p className="back">
-        <a href="#/">← {t('Home', '去主页')}</a>
-      </p>
+      <PageTop to="#/" label={t('Home', '去主页')} />
       <article className="episode" id={ep.id}>
         <header className="episode-head">
           <img
@@ -383,9 +392,6 @@ export default function App() {
 
   return (
     <div className="wrap">
-      <div className="topline">
-        <LangToggle />
-      </div>
       {page}
       <SiteFooter />
     </div>

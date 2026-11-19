@@ -99,9 +99,7 @@ p {
   display: flex;
   align-items: flex-start;
   gap: 1.25rem;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 1.5rem;
-  margin-bottom: 2.25rem;
+  margin-bottom: 0.75rem;
 }
 .site-head-text {
   flex: 1 1 auto;
@@ -124,7 +122,18 @@ p {
 }
 .site-intro {
   color: var(--muted);
-  margin: 0 0 0.8rem;
+  margin: 0;
+}
+/* Nav row: links on the left, language toggle under the avatar on the right. */
+.site-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.1rem;
+  margin-bottom: 2.25rem;
 }
 .site-nav {
   font-size: 0.85rem;
@@ -191,9 +200,16 @@ p {
   color: var(--faint);
 }
 
-/* ── Back link ─────────────────────────────────────────────────────────────── */
+/* ── Top row of an inner page: back link on the left, toggle on the right ──── */
+.page-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.75rem;
+}
 .back {
-  margin: 0 0 1.75rem;
   font-size: 0.85rem;
 }
 
@@ -324,12 +340,7 @@ p {
   color: var(--faint);
 }
 
-/* ── Language toggle: top of the page only (it scrolls away with the content) ─ */
-.topline {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1.25rem;
-}
+/* ── Language toggle: sits in the page's own top row, scrolls with it ──────── */
 .lang-toggle {
   font: inherit;
   font-size: 0.72rem;
@@ -410,8 +421,12 @@ p {
   }
   .site-head {
     gap: 0.9rem;
-    padding-bottom: 1.25rem;
+  }
+  .site-sub {
     margin-bottom: 1.9rem;
+  }
+  .page-top {
+    margin-bottom: 1.4rem;
   }
   .site-title {
     font-size: 1.35rem;

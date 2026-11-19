@@ -48,7 +48,7 @@ test('clicking anywhere on the card opens the detail page', async ({ page }) => 
   await page.locator('#podcasts .card .card-excerpt').click();
   await expect(page).toHaveURL(/#\/ep01$/);
   await expect(page.locator('.episode-title')).toContainText('AI指向温带雨林');
-  await expect(page.locator('.back a')).toBeVisible();
+  await expect(page.locator('.back')).toBeVisible();
 });
 
 test('the article itself is plain text, not a card', async ({ page }) => {
@@ -201,7 +201,7 @@ test.describe('localisation (English)', () => {
     await expect(page.locator('.app-tagline')).toHaveText(
       'Cadence for cycling, running and walking, with just your iPhone.',
     );
-    await expect(page.locator('.back a')).toHaveText('← Home');
+    await expect(page.locator('.back')).toHaveText('← Home');
 
     await page.goto('/#/andare/privacy');
     await expect(page.locator('.app-name')).toContainText('Privacy Policy');
@@ -234,6 +234,35 @@ test.describe('localisation (English)', () => {
       await expect(page.locator(sel)).not.toContainText(/[\u4e00-\u9fff]/);
     }
   });
+});
+
+test('the toggle shares a row with the nav (home) / back link (inner pages)', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const navRow = page.locator('.site-sub');
+  await expect(navRow.locator('.lang-toggle')).toHaveCount(1);
+  const [navBox, toggleBox, avatarBox] = await Promise.all([
+    navRow.locator('.site-nav').boundingBox(),
+    navRow.locator('.lang-toggle').boundingBox(),
+    page.locator('.avatar').boundingBox(),
+  ]);
+  // Same line as Orimono / Andare, to the right of them...
+  expect(toggleBox!.x).toBeGreaterThan(navBox!.x + navBox!.width - 2);
+  expect(Math.abs(toggleBox!.y - navBox!.y)).toBeLessThan(24);
+  // ...and below the avatar.
+  expect(toggleBox!.y).toBeGreaterThan(avatarBox!.y + avatarBox!.height - 4);
+
+  await page.goto('/#/ep01');
+  const topRow = page.locator('.page-top');
+  await expect(topRow.locator('.back')).toHaveText('← 去主页');
+  await expect(topRow.locator('.lang-toggle')).toHaveCount(1);
+  const [backBox, topToggle] = await Promise.all([
+    topRow.locator('.back').boundingBox(),
+    topRow.locator('.lang-toggle').boundingBox(),
+  ]);
+  expect(Math.abs(topToggle!.y - backBox!.y)).toBeLessThan(12);
+  expect(topToggle!.x).toBeGreaterThan(backBox!.x + backBox!.width);
 });
 
 test('the language toggle sits at the top and scrolls away', async ({ page }) => {
