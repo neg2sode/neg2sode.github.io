@@ -51,6 +51,28 @@ test('clicking anywhere on the card opens the detail page', async ({ page }) => 
   await expect(page.locator('.back')).toBeVisible();
 });
 
+test('the video note is styled like the photo captions', async ({ page }) => {
+  await page.goto('/#/ep01');
+  const videoCap = page.locator('.video-block figcaption');
+  const photoCap = page.locator('.notes .shot figcaption').first();
+  await expect(videoCap).toContainText('Thurso');
+  // Same family, size, colour and line-height as every other caption.
+  for (const prop of ['font-family', 'font-size', 'color', 'line-height'] as const) {
+    const [videoValue, photoValue] = await Promise.all([
+      videoCap.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop),
+      photoCap.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop),
+    ]);
+    expect(videoValue, prop).toBe(photoValue);
+  }
+  // And it is a caption, not a full-size paragraph.
+  const bodySize = await page
+    .locator('.notes .body-text')
+    .first()
+    .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  const capSize = await videoCap.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(capSize).toBeLessThan(bodySize);
+});
+
 test('the article itself is plain text, not a card', async ({ page }) => {
   await page.goto('/#/ep01');
   const article = page.locator('article.episode');
@@ -123,8 +145,8 @@ test('detail has the Xiaoyuzhou link and an inset Bilibili player', async ({ pag
     'src',
     /player\.bilibili\.com\/player\.html\?bvid=BV18Wgq6mEa1/,
   );
-  // Fallback link to open on Bilibili directly.
-  await expect(page.locator('.video-fallback a')).toHaveAttribute(
+  // Fallback link to open on Bilibili directly lives in the caption.
+  await expect(page.locator('.video-block figcaption a')).toHaveAttribute(
     'href',
     'https://www.bilibili.com/video/BV18Wgq6mEa1',
   );

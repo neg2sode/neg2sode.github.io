@@ -25,7 +25,7 @@ export const site = {
 export type Block =
   | { type: 'text'; text: string; textEn?: string } // one paragraph; \n for line breaks
   | { type: 'photo'; src: string; caption: string; captionEn?: string }
-  | { type: 'bilibili'; bvid: string; href: string } // inset video player
+  | { type: 'bilibili'; bvid: string; href: string; caption?: string; captionEn?: string } // inset video player + caption
   | { type: 'link'; href: string; label: string; labelEn?: string };
 
 export type Episode = {
@@ -123,11 +123,9 @@ export const episodes: Episode[] = [
         type: 'bilibili',
         bvid: 'BV18Wgq6mEa1',
         href: 'https://www.bilibili.com/video/BV18Wgq6mEa1',
-      },
-      {
-        type: 'text',
-        text: '以及这里有谷起在Thurso（一个小镇）看到的景象！他对发了狂着拍后留下这段感到非常自豪',
-        textEn:
+        caption:
+          '以及这里有谷起在Thurso（一个小镇）看到的景象！他对发了狂着拍后留下这段感到非常自豪',
+        captionEn:
           'And here is what Guqi saw in Thurso — a small town in the far north. He is rather proud of the clip he kept after shooting like a madman.',
       },
       {

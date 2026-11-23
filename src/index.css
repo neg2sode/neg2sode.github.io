@@ -290,11 +290,13 @@ p {
   margin: 1.05em 0;
 }
 
+.video-block {
+  margin: 1.5rem 0;
+}
 .video {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  margin: 1.5rem 0 0.5rem;
   border-radius: 10px;
   overflow: hidden;
   background: #000;
@@ -306,12 +308,6 @@ p {
   height: 100%;
   border: 0;
 }
-.video-fallback {
-  margin: 0 0 0.5rem;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
 .shot {
   margin: 1.6rem 0;
 }
@@ -321,11 +317,21 @@ p {
   display: block;
   background: var(--bg-sunken);
 }
-.shot figcaption {
+.shot figcaption,
+.video-block figcaption {
   font-size: 0.75rem;
   line-height: 1.55;
   color: var(--muted);
   margin-top: 0.5rem;
+  text-wrap: pretty; /* avoid a one-character orphan line */
+}
+/* The video caption mirrors a photo caption; the fallback link sits under it. */
+.video-block figcaption p {
+  margin: 0;
+}
+.video-block figcaption a {
+  display: inline-block;
+  margin-top: 0.15rem;
 }
 
 /* ── Footer ────────────────────────────────────────────────────────────────── */

@@ -243,7 +243,7 @@ function BlockView({ block }: { block: Block }) {
       `https://player.bilibili.com/player.html?bvid=${block.bvid}` +
       `&page=1&autoplay=0&danmaku=0&high_quality=1&as_wide=1`;
     return (
-      <>
+      <figure className="video-block">
         <div className="video">
           <iframe
             src={src}
@@ -253,12 +253,13 @@ function BlockView({ block }: { block: Block }) {
             allow="fullscreen"
           />
         </div>
-        <p className="video-fallback">
+        <figcaption>
+          {block.caption && <p>{pick(locale, block.captionEn ?? block.caption, block.caption)}</p>}
           <a href={block.href} target="_blank" rel="noreferrer">
             {t('Open on Bilibili', '在 Bilibili 打开')} ↗
           </a>
-        </p>
-      </>
+        </figcaption>
+      </figure>
     );
   }
   if (block.type === 'link') {

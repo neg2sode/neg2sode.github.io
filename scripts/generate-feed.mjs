@@ -62,7 +62,10 @@ function blockToHtml(block) {
     );
   }
   if (block.type === 'bilibili') {
-    return `<p><a href="${block.href}">在 Bilibili 观看视频</a></p>`;
+    const figcaption = block.caption
+      ? `<figcaption>${xml(block.caption)}</figcaption>`
+      : '';
+    return `<figure><a href="${block.href}">在 Bilibili 观看视频</a>${figcaption}</figure>`;
   }
   if (block.type === 'link') {
     return `<p><a href="${block.href}">${xml(block.label)}</a></p>`;
