@@ -21,6 +21,10 @@ export const andare = {
     'Andare 仅通过 iPhone 自带的运动传感器计算踏频（每分钟踩踏或步频），无需外接传感器或手表。配合实时数据、GPS 路线地图、按区间着色的踏频图与 HealthKit 同步，构成一套完整的运动记录工具。',
   ],
 
+  // What the single screenshot on the page shows, one point per line.
+  showcaseNotes: ['Workout summary', 'Starting a workout', 'Recent stats'],
+  showcaseNotesZh: ['运动总结', '开始一次运动', '最近数据'],
+
   supportEmail: 'neg2sode@outlook.com',
   github: 'https://github.com/neg2sode/Andare',
   platform: 'iOS 18.2+',

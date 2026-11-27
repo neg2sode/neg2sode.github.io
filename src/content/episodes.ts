@@ -14,16 +14,25 @@ export const site = {
   introEn: 'Right now I only have a podcast (｡•́︿•̀｡)',
   // Avatar shown in the header (your photo at public/avatar.jpg).
   avatar: '/avatar.jpg',
-  links: [
-    { label: '小宇宙', labelEn: 'Xiaoyuzhou', href: 'https://www.xiaoyuzhoufm.com/' },
-    { label: 'GitHub', labelEn: 'GitHub', href: 'https://github.com/neg2sode' },
-  ],
+  links: [{ label: 'GitHub', labelEn: 'GitHub', href: 'https://github.com/neg2sode' }],
 };
 
 // A show-notes body is an ordered list of blocks. They render top-to-bottom in
 // this exact order, so photos sit between the paragraphs just like on Xiaoyuzhou.
+export type ListBlock = {
+  type: 'list';
+  items: string[];
+  itemsEn?: string[];
+  label?: string;
+  labelEn?: string;
+  foot?: string;
+  footEn?: string;
+};
+
 export type Block =
   | { type: 'text'; text: string; textEn?: string } // one paragraph; \n for line breaks
+  // A short list that reads as body content (two items per row on wide screens).
+  | ListBlock
   | { type: 'photo'; src: string; caption: string; captionEn?: string }
   | { type: 'bilibili'; bvid: string; href: string; caption?: string; captionEn?: string } // inset video player + caption
   | { type: 'link'; href: string; label: string; labelEn?: string };
@@ -71,15 +80,29 @@ export const episodes: Episode[] = [
       'Taking AI from the Scottish Highlands down to the Yorkshire Dales — temperate rainforest, the context around a work of art, and the surprises along the way.',
     body: [
       {
-        type: 'text',
-        text: '· 苏格兰高地\n· 带着AI旅游\n· 约克郡谷地\n· 温带雨林\n· 艺术语境\n· 自然健身房\n· 学习且旅行\n· 惊喜分给路上',
-        textEn:
-          '· The Scottish Highlands\n· Travelling with AI\n· The Yorkshire Dales\n· Temperate rainforest\n· The context of an artwork\n· Nature as a gym\n· Learning while travelling\n· Handing the surprises out along the road',
-      },
-      {
-        type: 'text',
-        text: '以上是谷起主播认为本期的主题',
-        textEn: 'Those, in the host Guqi’s view, are the themes of this episode.',
+        type: 'list',
+        items: [
+          '苏格兰高地',
+          '带着AI旅游',
+          '约克郡谷地',
+          '温带雨林',
+          '艺术语境',
+          '自然健身房',
+          '学习且旅行',
+          '惊喜分给路上',
+        ],
+        itemsEn: [
+          'The Scottish Highlands',
+          'Travelling with AI',
+          'The Yorkshire Dales',
+          'Temperate rainforest',
+          'The context of an artwork',
+          'Nature as a gym',
+          'Learning while travelling',
+          'Handing the surprises out along the road',
+        ],
+        foot: '以上是谷起主播认为本期的主题',
+        footEn: 'Those, in the host Guqi’s view, are the themes of this episode.',
       },
       {
         type: 'photo',

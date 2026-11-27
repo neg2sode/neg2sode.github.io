@@ -15,7 +15,7 @@
   --bg-raised: #232323; /* +6 — cards on the home page only */
   --bg-sunken: #161616; /* -7 — media wells, code */
   --fg: #e8e8e8;
-  --muted: #9a9a9a;
+  --muted: #b1b1b1;
   --faint: #707070;
   --line: #303030;
   --line-strong: #4a4a4a;
@@ -23,6 +23,14 @@
   /* Accent on a dark background. */
   --accent: #03bfa5;
   --accent-bright: #2fd4bd;
+
+  /* Layout metrics: one text measure, one note rail. `ch` resolves in the body
+     font (≈0.53em), so 62ch + 3ch + 20ch ≈ 966px at 21.5px — the two columns
+     fit from 1020px up. */
+  --measure: 62ch;
+  --gap: 3ch;
+  --aside: 20ch;
+  --content: calc(var(--measure) + var(--gap) + var(--aside));
 
   /* Body typeface — one knob for the whole site. */
   --font-body: 'Source Serif 4 Variable', 'Noto Serif SC', 'Songti SC',
@@ -111,10 +119,20 @@ p {
 }
 
 /* ── Column ────────────────────────────────────────────────────────────────── */
+/* The gutter is the only thing that positions the page. It is computed from the
+   *wide* content width at every viewport, so when the notes rail appears the
+   text column does not move — the rail simply fills the space to its right. */
 .wrap {
-  max-width: 64ch;
-  margin: 0 auto;
-  padding: 3.25rem clamp(1.1rem, 3.5vw, 1.5rem) 5.5rem;
+  width: min(calc(100% - 2 * 0.75rem), var(--measure));
+  margin-inline: auto;
+  padding-block: 3.25rem 5.5rem;
+}
+
+/* Episode pages reserve the rail's width from the start (left-anchored). */
+.wrap--wide {
+  --gutter: max(0.75rem, calc((100% - var(--content)) / 2));
+  width: min(calc(100% - 2 * var(--gutter)), var(--measure));
+  margin-inline: var(--gutter);
 }
 
 /* ── Header (home) ─────────────────────────────────────────────────────────── */
@@ -173,6 +191,19 @@ p {
 }
 
 /* ── Home cards: content only (no thumbnail), the card chrome is kept ──────── */
+.podcast-grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 760px) {
+  .podcast-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.podcast-grid .card {
+  margin-bottom: 0;
+}
+
 .card {
   display: block;
   border: 1px solid var(--line);
@@ -236,15 +267,30 @@ p {
   font-size: 0.85rem;
 }
 
+/* A page that has no rail: prose keeps the text measure, the shell stays wide
+   so the back link / footer line up with the article pages. */
+.page-col {
+  max-width: var(--measure);
+}
+
 /* ── Article: plain text on the background, no card ────────────────────────── */
 .episode {
   margin: 0;
 }
+/* Cover + title on the left; the dated meta lives in the notes rail. */
 .episode-head {
+  min-width: 0;
+}
+.episode-head-row {
   display: flex;
-  gap: 1.1rem;
+  gap: 1rem;
   align-items: flex-start;
-  margin-bottom: 0.25rem;
+}
+.episode-head-text {
+  min-width: 0;
+}
+.episode-aside {
+  min-width: 0;
 }
 .cover {
   flex: none;
@@ -262,11 +308,11 @@ p {
   min-width: 0;
 }
 .episode-kicker {
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--faint);
-  margin: 0 0 0.25rem;
+  color: var(--muted);
+  margin: 0 0 0.3rem;
 }
 .epno {
   font-variant-numeric: tabular-nums;
@@ -274,11 +320,12 @@ p {
   font-weight: 600;
 }
 .episode-title {
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  line-height: 1.28;
-  letter-spacing: -0.01em;
-  margin: 0 0 0.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  margin: 0;
 }
 .episode-sub {
   color: var(--muted);
@@ -290,13 +337,55 @@ p {
   font-size: 0.85rem;
 }
 
+/* ── A short list in the flow of the body text ─────────────────────────────── */
+.body-list {
+  margin: 1.3rem 0;
+}
+.list-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.45rem;
+}
+.body-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0.3rem;
+}
+.body-list li {
+  text-indent: -1.4em;
+  padding-left: 1.4em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.body-list li::before {
+  content: '· ';
+  color: var(--faint);
+}
+.list-foot {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+@media (min-width: 600px) {
+  .body-list ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2ch;
+  }
+}
+
 /* ── Audio player ──────────────────────────────────────────────────────────── */
 .player {
   width: 100%;
-  margin: 1.3rem 0 0;
+  margin: 0.7rem 0 0;
 }
 
-/* ── Show notes: body text fills the column, images run edge to edge ───────── */
+/* ── Show notes: media on the left, marginalia on the right ────────────────── */
 .notes {
   margin-top: 1.5rem;
 }
@@ -306,6 +395,7 @@ p {
 .notes p {
   margin: 1.05em 0;
 }
+
 .body-text {
   white-space: pre-line; /* keep the line breaks from the content file */
 }
@@ -331,6 +421,7 @@ p {
   height: 100%;
   border: 0;
 }
+/* ── Photos: image in the wide column, caption in the rail ─────────────────── */
 .shot {
   margin: 1.6rem 0;
 }
@@ -355,6 +446,114 @@ p {
 .video-block figcaption a {
   display: inline-block;
   margin-top: 0.15rem;
+}
+
+/* ── Desktop: the notes rail ───────────────────────────────────────────────────
+   1020px is where 62ch + 3ch + 20ch (plus the smallest gutters) actually fits;
+   below it everything stacks. The mark-up never changes — only its placement. */
+@keyframes note-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (min-width: 1020px) {
+  @supports (grid-template-columns: subgrid) {
+    .wrap--wide {
+      width: min(calc(100% - 2 * var(--gutter)), var(--content));
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--aside);
+      column-gap: var(--gap);
+      row-gap: 1.9rem;
+      align-items: start;
+    }
+
+    /* Rows that hold both a main column and a note align on the grid. */
+    .head-row,
+    .shot,
+    .video-block {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: start;
+      margin: 0;
+    }
+    .head-row > .episode-head,
+    .head-row > .app-head,
+    .shot > img,
+    .video-block > .video {
+      grid-column: 1;
+      min-width: 0;
+    }
+    .head-row > .episode-aside,
+    .shot > figcaption,
+    .video-block > figcaption {
+      grid-column: 2;
+      margin: 0;
+      font-size: 0.8rem;
+    }
+    /* Captions sit on the bottom edge of their picture. */
+    .shot > figcaption,
+    .video-block > figcaption {
+      align-self: end;
+    }
+    /* The meta and the listen link stack quietly in the rail. */
+    .episode-aside .episode-sub {
+      display: grid;
+      row-gap: 0.15rem;
+      color: var(--muted);
+    }
+    .episode-aside .episode-sub .meta-part::after {
+      content: none;
+    }
+    .episode-aside .episode-links {
+      margin-top: 0.6rem;
+    }
+
+    /* The app's one screenshot pairs with its three points, like a photo. */
+    .notes > .app-showcase {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: start;
+      margin: 0;
+    }
+    .notes > .app-showcase > img {
+      grid-column: 1;
+      min-width: 0;
+    }
+    .notes > .app-showcase > figcaption {
+      grid-column: 2;
+      align-self: end;
+      margin: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Rows that only live in the main column. */
+    .notes > .app-section,
+    .notes > .body-list,
+    .notes > .body-text,
+    .notes > .body-link {
+      grid-column: 1;
+      margin: 0;
+    }
+
+    /* Captions settle in instead of popping when the rail appears. */
+    @media (prefers-reduced-motion: no-preference) {
+      .notes .shot > figcaption,
+      .notes .video-block > figcaption {
+        animation: note-in 0.18s ease-out both;
+      }
+    }
+  }
 }
 
 /* ── Footer ────────────────────────────────────────────────────────────────── */
@@ -430,6 +629,23 @@ p {
   display: block;
   background: var(--bg-sunken);
 }
+.app-showcase figcaption {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+.app-showcase ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  row-gap: 0.2rem;
+}
+.app-showcase li::before {
+  content: '· ';
+  color: var(--faint);
+}
 
 .app-section {
   margin-top: 2rem;
@@ -437,16 +653,22 @@ p {
 .app-section .body-text {
   margin: 0 0 0.65em;
 }
-.app-meta {
-  margin-top: 0.9rem;
+/* The app's facts (platform, price, links) read like the episode's meta row. */
+.app-aside {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
+}
+.app-aside p {
+  margin: 0 0 0.25rem;
+}
+.app-aside p:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Narrow screens: almost no side padding, text fills the glass ──────────── */
 @media (max-width: 600px) {
   .wrap {
-    padding: 2.25rem 0.75rem 3.25rem;
+    padding-block: 2.25rem 3.25rem;
   }
   .site-head {
     gap: 0.9rem;

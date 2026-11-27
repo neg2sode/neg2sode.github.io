@@ -5,6 +5,7 @@ import {
   neighbours,
   type Episode,
   type Block,
+  type ListBlock,
 } from './content/episodes';
 import { andare } from './content/andare';
 import { andarePrivacy } from './content/andare-privacy';
@@ -92,9 +93,11 @@ function Home() {
       <main>
         <section id="podcasts">
           <h2 className="section-title">{t('Podcast', '播客')}</h2>
-          {episodes.map((ep) => (
-            <EpisodeCard key={ep.id} ep={ep} />
-          ))}
+          <div className="podcast-grid">
+            {episodes.map((ep) => (
+              <EpisodeCard key={ep.id} ep={ep} />
+            ))}
+          </div>
         </section>
       </main>
     </>
@@ -120,58 +123,75 @@ function AndarePage() {
     <>
       <PageTop to="#/" label={t('Home', '去主页')} />
 
-      <header className="app-head">
-        <img
-          className="app-icon"
-          src={andare.icon}
-          alt={`${andare.name} ${t('icon', '图标')}`}
-          width={120}
-          height={120}
-        />
-        <div className="app-head-text">
-          <h1 className="app-name">
-            {andare.name}
-            {isZh && <span className="app-name-zh"> {andare.nameZh}</span>}
-          </h1>
-          <p className="app-tagline">{t(andare.tagline, andare.taglineZh)}</p>
+      <div className="notes">
+        <div className="head-row">
+          <header className="app-head">
+            <img
+              className="app-icon"
+              src={andare.icon}
+              alt={`${andare.name} ${t('icon', '图标')}`}
+              width={120}
+              height={120}
+            />
+            <div className="app-head-text">
+              <h1 className="app-name">
+                {andare.name}
+                {isZh && <span className="app-name-zh"> {andare.nameZh}</span>}
+              </h1>
+              <p className="app-tagline">{t(andare.tagline, andare.taglineZh)}</p>
+            </div>
+          </header>
+
+          <aside className="episode-aside app-aside">
+            <p>{andare.platform}</p>
+            <p>{t(andare.price, '免费')}</p>
+            <p>
+              <a href={andare.github} target="_blank" rel="noreferrer">
+                GitHub ↗
+              </a>
+            </p>
+            <p>
+              <a href="#/andare/privacy">{t('Privacy Policy', '隐私政策')}</a>
+            </p>
+          </aside>
         </div>
-      </header>
 
-      <figure className="app-showcase">
-        <img
-          src={andare.showcase}
-          alt={t('Andare screenshot', 'Andare 界面展示')}
-          loading="lazy"
-        />
-      </figure>
+        <figure className="app-showcase">
+          <img
+            src={andare.showcase}
+            alt={t('Andare screenshot', 'Andare 界面展示')}
+            loading="lazy"
+          />
+          <figcaption>
+            <ul>
+              {(isZh ? andare.showcaseNotesZh : andare.showcaseNotes).map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </figcaption>
+        </figure>
 
-      <section className="app-section">
-        <h2 className="section-title">{t('About', '关于')}</h2>
-        {andare.about.map((p, i) => (
-          <p className="body-text" key={i}>
-            {t(p, andare.aboutZh[i])}
+        <section className="app-section">
+          <h2 className="section-title">{t('About', '关于')}</h2>
+          {andare.about.map((p, i) => (
+            <p className="body-text" key={i}>
+              {t(p, andare.aboutZh[i])}
+            </p>
+          ))}
+        </section>
+
+        <section className="app-section">
+          <h2 className="section-title">{t('Support', '支持')}</h2>
+          <p className="body-text">
+            {t(
+              'Questions, feedback or bug reports? Email ',
+              '有问题、反馈或 Bug？请发邮件到 ',
+            )}
+            <a href={`mailto:${andare.supportEmail}`}>{andare.supportEmail}</a>
+            {t('.', '。')}
           </p>
-        ))}
-      </section>
-
-      <section className="app-section">
-        <h2 className="section-title">{t('Support', '支持')}</h2>
-        <p className="body-text">
-          {t(
-            'Questions, feedback or bug reports? Email ',
-            '有问题、反馈或 Bug？请发邮件到 ',
-          )}
-          <a href={`mailto:${andare.supportEmail}`}>{andare.supportEmail}</a>
-          {t('.', '。')}
-        </p>
-        <p className="app-meta">
-          {andare.platform} · {t(andare.price, '免费')} ·{' '}
-          <a href={andare.github} target="_blank" rel="noreferrer">
-            GitHub ↗
-          </a>{' '}
-          · <a href="#/andare/privacy">{t('Privacy Policy', '隐私政策')}</a>
-        </p>
-      </section>
+        </section>
+      </div>
     </>
   );
 }
@@ -183,45 +203,70 @@ function PrivacyPage() {
     <>
       <PageTop to="#/andare" label="Andare" />
 
-      <header className="app-head">
-        <img
-          className="app-icon"
-          src={andare.icon}
-          alt={`${andare.name} ${t('icon', '图标')}`}
-          width={120}
-          height={120}
-        />
-        <div className="app-head-text">
-          <h1 className="app-name">
-            {andare.name}
-            <span className="app-name-zh">
-              {isZh ? ` ${andare.nameZh} · 隐私政策` : ' · Privacy Policy'}
-            </span>
-          </h1>
-          <p className="app-tagline">
-            {t('Last updated: ', '最近更新：')}
-            {andarePrivacy.updated}
-          </p>
-        </div>
-      </header>
-
-      {andarePrivacy.sections.map((s) => (
-        <section className="app-section" key={s.title}>
-          <h2 className="section-title">{t(s.title, s.titleZh)}</h2>
-          {s.body.map((p, j) => (
-            <p className="body-text" key={j}>
-              {t(p, s.bodyZh[j])}
+      <div className="page-col">
+        <header className="app-head">
+          <img
+            className="app-icon"
+            src={andare.icon}
+            alt={`${andare.name} ${t('icon', '图标')}`}
+            width={120}
+            height={120}
+          />
+          <div className="app-head-text">
+            <h1 className="app-name">
+              {andare.name}
+              <span className="app-name-zh">
+                {isZh ? ` ${andare.nameZh} · 隐私政策` : ' · Privacy Policy'}
+              </span>
+            </h1>
+            <p className="app-tagline">
+              {t('Last updated: ', '最近更新：')}
+              {andarePrivacy.updated}
             </p>
-          ))}
-        </section>
-      ))}
+          </div>
+        </header>
+
+        {andarePrivacy.sections.map((section) => (
+          <section className="app-section" key={section.title}>
+            <h2 className="section-title">{t(section.title, section.titleZh)}</h2>
+            {section.body.map((paragraph, j) => (
+              <p className="body-text" key={j}>
+                {t(paragraph, section.bodyZh[j])}
+              </p>
+            ))}
+          </section>
+        ))}
+      </div>
     </>
   );
 }
 
-// ── Detail: full episode page — plain text on the background, no card ─────────
+// ── Detail: full episode page — content left, marginalia right ───────────────
+// On phones everything stacks; from 1020px the same DOM becomes a two-column
+// grid: media in the wide column, captions/themes/notes in the narrow rail.
+function ListView({ block }: { block: ListBlock }) {
+  const { isZh, t } = useLocale();
+  const items = isZh ? block.items : (block.itemsEn ?? block.items);
+  const label = block.label ? t(block.labelEn ?? block.label, block.label) : null;
+  const foot = block.foot ? t(block.footEn ?? block.foot, block.foot) : null;
+  return (
+    <div className="body-list">
+      {label && <p className="list-label">{label}</p>}
+      <ul>
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+      {foot && <p className="list-foot">{foot}</p>}
+    </div>
+  );
+}
+
 function BlockView({ block }: { block: Block }) {
   const { locale, t } = useLocale();
+  if (block.type === 'list') {
+    return <ListView block={block} />;
+  }
   if (block.type === 'photo') {
     return (
       <figure className="shot">
@@ -245,6 +290,8 @@ function BlockView({ block }: { block: Block }) {
     return (
       <figure className="video-block">
         <div className="video">
+          {/* One player everywhere: Bilibili's own iframe. If a browser refuses
+              it (iOS Safari third-party cookies), the caption's link is the way out. */}
           <iframe
             src={src}
             title={t('Bilibili video', 'Bilibili 视频')}
@@ -256,7 +303,7 @@ function BlockView({ block }: { block: Block }) {
         <figcaption>
           {block.caption && <p>{pick(locale, block.captionEn ?? block.caption, block.caption)}</p>}
           <a href={block.href} target="_blank" rel="noreferrer">
-            {t('Open on Bilibili', '在 Bilibili 打开')} ↗
+            {t('Watch on Bilibili', '在 B站观看')} ↗
           </a>
         </figcaption>
       </figure>
@@ -280,47 +327,49 @@ function EpisodePage({ ep }: { ep: Episode }) {
     <>
       <PageTop to="#/" label={t('Home', '去主页')} />
       <article className="episode" id={ep.id}>
-        <header className="episode-head">
-          <img
-            className="cover cover-lg"
-            src={ep.cover}
-            alt={`${ep.number} ${t('cover', '封面')}`}
-            width={104}
-            height={104}
-          />
-          <div className="episode-meta">
-            <p className="episode-kicker">
-              <span className="epno">{ep.number}</span> ·{' '}
-              {pick(locale, ep.showEn, ep.show)}
-            </p>
-            <h1 className="episode-title">{pick(locale, ep.titleEn, ep.title)}</h1>
-            <MetaLine
-              className="episode-sub"
-              parts={episodeMeta(ep, locale, false)}
-            />
-            <p className="episode-links">
-              <a href={ep.xiaoyuzhouUrl} target="_blank" rel="noreferrer">
-                {t('Listen on Xiaoyuzhou', '在小宇宙收听')} ↗
-              </a>
-            </p>
-          </div>
-        </header>
-
-        <audio className="player" controls preload="metadata" src={ep.audioUrl}>
-          {isZh ? (
-            <>
-              你的浏览器不支持音频播放，请
-              <a href={ep.xiaoyuzhouUrl}>在小宇宙收听</a>。
-            </>
-          ) : (
-            <>
-              Your browser does not support audio playback.{' '}
-              <a href={ep.xiaoyuzhouUrl}>Listen on Xiaoyuzhou</a>.
-            </>
-          )}
-        </audio>
-
         <div className="notes">
+          <div className="head-row">
+            <header className="episode-head">
+              <div className="episode-head-row">
+                <img
+                  className="cover cover-lg"
+                  src={ep.cover}
+                  alt={`${ep.number} ${t('cover', '封面')}`}
+                  width={104}
+                  height={104}
+                />
+                <div className="episode-head-text">
+                  <p className="episode-kicker">
+                    <span className="epno">{ep.number}</span> ·{' '}
+                    {pick(locale, ep.showEn, ep.show)}
+                  </p>
+                  <h1 className="episode-title">{pick(locale, ep.titleEn, ep.title)}</h1>
+                </div>
+              </div>
+              <audio className="player" controls preload="metadata" src={ep.audioUrl}>
+                {isZh ? (
+                  <>
+                    你的浏览器不支持音频播放，请
+                    <a href={ep.xiaoyuzhouUrl}>在小宇宙收听</a>。
+                  </>
+                ) : (
+                  <>
+                    Your browser does not support audio playback.{' '}
+                    <a href={ep.xiaoyuzhouUrl}>Listen on Xiaoyuzhou</a>.
+                  </>
+                )}
+              </audio>
+            </header>
+            <aside className="episode-aside">
+              <MetaLine className="episode-sub" parts={episodeMeta(ep, locale, false)} />
+              <p className="episode-links">
+                <a href={ep.xiaoyuzhouUrl} target="_blank" rel="noreferrer">
+                  {t('Listen on Xiaoyuzhou', '在小宇宙收听')} ↗
+                </a>
+              </p>
+            </aside>
+          </div>
+
           {ep.body.map((block, i) => (
             <BlockView key={i} block={block} />
           ))}
@@ -381,18 +430,19 @@ export default function App() {
     }
   }, [isZh, t]);
 
+  const current = episodes.find((ep) => ep.id === route);
+
   let page;
   if (route === 'andare') {
     page = <AndarePage />;
   } else if (route === 'andare/privacy') {
     page = <PrivacyPage />;
   } else {
-    const current = episodes.find((ep) => ep.id === route);
     page = current ? <EpisodePage ep={current} /> : <Home />;
   }
 
   return (
-    <div className="wrap">
+    <div className="wrap wrap--wide">
       {page}
       <SiteFooter />
     </div>

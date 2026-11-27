@@ -61,11 +61,16 @@ function blockToHtml(block) {
       `<figcaption>${xml(block.caption)}</figcaption></figure>`
     );
   }
+  if (block.type === 'note') {
+    const label = block.label ? `<p><strong>${xml(block.label)}</strong></p>` : '';
+    const foot = block.foot ? `<p><em>${xml(block.foot)}</em></p>` : '';
+    return `<aside>${label}<p>${xml(block.text).replace(/\n/g, '<br />')}</p>${foot}</aside>`;
+  }
   if (block.type === 'bilibili') {
     const figcaption = block.caption
       ? `<figcaption>${xml(block.caption)}</figcaption>`
       : '';
-    return `<figure><a href="${block.href}">在 Bilibili 观看视频</a>${figcaption}</figure>`;
+    return `<figure><a href="${block.href}">在 B站观看</a>${figcaption}</figure>`;
   }
   if (block.type === 'link') {
     return `<p><a href="${block.href}">${xml(block.label)}</a></p>`;

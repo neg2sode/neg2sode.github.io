@@ -92,13 +92,12 @@ test('the video note is styled like the photo captions', async ({ page }) => {
     ]);
     expect(videoValue, prop).toBe(photoValue);
   }
-  // And it is a caption, not a full-size paragraph.
-  const bodySize = await page
-    .locator('.notes .body-text')
-    .first()
-    .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  // And it is a caption, smaller than the body type.
+  const rootSize = await page.evaluate(() =>
+    parseFloat(getComputedStyle(document.documentElement).fontSize),
+  );
   const capSize = await videoCap.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-  expect(capSize).toBeLessThan(bodySize);
+  expect(capSize).toBeLessThan(rootSize);
 });
 
 test('the article itself is plain text, not a card', async ({ page }) => {
@@ -112,22 +111,12 @@ test('the article itself is plain text, not a card', async ({ page }) => {
   const notes = page.locator('.notes');
   await expect(notes).toHaveCSS('padding-top', '0px');
   await expect(notes).toHaveCSS('border-top-width', '0px');
-  // Body paragraphs are full-measure (no inner card padding).
-  const body = page.locator('.notes .body-text').first();
-  const [bodyBox, wrapBox, padding] = await Promise.all([
-    body.boundingBox(),
+  // The cover sits exactly on the column's left edge — no inner card padding.
+  const [coverBox, wrapBox] = await Promise.all([
+    page.locator('.episode .cover').boundingBox(),
     page.locator('.wrap').boundingBox(),
-    page
-      .locator('.wrap')
-      .evaluate((el) => {
-        const s = getComputedStyle(el);
-        return parseFloat(s.paddingLeft) + parseFloat(s.paddingRight);
-      }),
   ]);
-  // The paragraph spans the whole content column — no card padding in between.
-  expect(bodyBox && wrapBox && Math.abs(bodyBox.width - (wrapBox.width - padding)) < 2).toBe(
-    true,
-  );
+  expect(Math.abs(coverBox!.x - wrapBox!.x)).toBeLessThan(2);
 });
 
 test('detail renders show-note photos in order with captions', async ({ page }) => {
@@ -180,6 +169,19 @@ test('detail has the Xiaoyuzhou link and an inset Bilibili player', async ({ pag
   );
 });
 
+test('home entries sit in a two-up grid and share the page shell', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const columns = await page
+    .locator('.podcast-grid')
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  expect(columns).toBe(2);
+
+  // The video link reads "watch on Bilibili" now.
+  await page.goto('/#/ep01');
+  await expect(page.locator('.video-block figcaption a')).toHaveText('在 B站观看 ↗');
+});
+
 test('home cards carry the content and nothing else', async ({ page }) => {
   await page.goto('/');
   const card = page.locator('#podcasts .card').first();
@@ -213,6 +215,12 @@ test('andare support page shows app name, icon and contact', async ({ page }) =>
     .poll(() => icon.evaluate((i: HTMLImageElement) => i.naturalWidth))
     .toBeGreaterThan(0);
 
+  // The screenshot's caption lists what it shows, one point per line.
+  const notes = page.locator('.app-showcase figcaption li');
+  await expect(notes).toHaveCount(3);
+  await expect(notes.nth(0)).toHaveText('运动总结');
+  await expect(notes.nth(2)).toHaveText('最近数据');
+
   // Showcase image renders and decodes.
   const showcase = page.locator('.app-showcase img');
   await expect(showcase).toHaveAttribute('src', /andare_showcase\.jpg/);
@@ -222,10 +230,12 @@ test('andare support page shows app name, icon and contact', async ({ page }) =>
 
   // Support contact is a mailto link.
   await expect(page.locator('.app-section a[href^="mailto:"]').first()).toBeVisible();
-  // GitHub repo link present.
-  await expect(
-    page.locator('.app-meta a[href="https://github.com/neg2sode/Andare"]'),
-  ).toHaveAttribute('href', 'https://github.com/neg2sode/Andare');
+  // The app's facts live in the rail: platform, price, repo, privacy.
+  const aside = page.locator('.app-aside');
+  await expect(aside).toContainText('iOS 18.2+');
+  await expect(aside).toContainText('免费');
+  await expect(aside.locator('a[href="https://github.com/neg2sode/Andare"]')).toHaveCount(1);
+  await expect(aside.locator('a[href="#/andare/privacy"]')).toHaveCount(1);
 });
 
 test('home nav links to the andare page', async ({ page }) => {
@@ -386,9 +396,95 @@ test('feed and avatar icons are linked from the document head', async ({ page, r
     expect(res.headers()['content-type'], path).toMatch(/image/);
   }
 
-  // Footer offers the feed, and no longer links to the retired font page.
+  // Footer offers GitHub + the feed; 小宇宙 and the retired font page are gone.
   await expect(page.locator('.site-foot a[href="/feed.xml"]')).toHaveText('RSS');
   await expect(page.locator('.site-foot a[href="#/fonts"]')).toHaveCount(0);
+  await expect(page.locator('.site-foot a[href*="xiaoyuzhou"]')).toHaveCount(0);
+});
+
+test('wide screens put the meta and captions in a rail on the right', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/#/ep01');
+  const img = page.locator('.notes .shot img').first();
+  const cap = page.locator('.notes .shot figcaption').first();
+  const aside = page.locator('.episode-aside').first();
+  const list = page.locator('.body-list').first();
+  await img.scrollIntoViewIfNeeded();
+
+  const [imgBox, capBox, asideBox, listBox] = await Promise.all([
+    img.boundingBox(),
+    cap.boundingBox(),
+    aside.boundingBox(),
+    list.boundingBox(),
+  ]);
+  // Meta + listen link live in the rail, right of the title block.
+  expect(asideBox!.x).toBeGreaterThan(imgBox!.x + imgBox!.width - 1);
+  expect(asideBox!.y).toBeLessThan(imgBox!.y);
+  // The themes list stays in the body column, two per row.
+  expect(listBox!.x).toBeLessThan(asideBox!.x);
+  const perRow = await page
+    .locator('.body-list ul')
+    .first()
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  expect(perRow).toBe(2);
+  // Caption in the rail, its bottom on the picture's bottom edge.
+  expect(capBox!.x).toBeGreaterThan(imgBox!.x + imgBox!.width);
+  expect(Math.abs(capBox!.y + capBox!.height - (imgBox!.y + imgBox!.height))).toBeLessThan(6);
+
+  // Same DOM, narrow window: captions go back under their image.
+  await page.setViewportSize({ width: 900, height: 1000 });
+  const [img2, cap2] = await Promise.all([img.boundingBox(), cap.boundingBox()]);
+  expect(cap2!.y).toBeGreaterThan(img2!.y + img2!.height - 4);
+});
+
+test('every page shares one shell width', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const shells: { x: number; width: number }[] = [];
+  for (const route of ['/', '/#/ep01', '/#/andare', '/#/andare/privacy']) {
+    await page.goto(route);
+    const box = await page.locator('.wrap').boundingBox();
+    shells.push({ x: box!.x, width: box!.width });
+  }
+  for (const shell of shells.slice(1)) {
+    expect(shell.x).toBeCloseTo(shells[0].x, 0);
+    expect(shell.width).toBeCloseTo(shells[0].width, 0);
+  }
+
+  // The app screenshot is as wide as an episode photo: one media column.
+  await page.goto('/#/ep01');
+  const episodePhoto = await page.locator('.notes .shot img').first().boundingBox();
+  await page.goto('/#/andare');
+  const appShot = await page.locator('.app-showcase img').boundingBox();
+  expect(Math.abs(appShot!.width - episodePhoto!.width)).toBeLessThan(2);
+});
+
+test('crossing the breakpoint slides the rail in, not the text', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 900 });
+  await page.goto('/#/ep01');
+  const before = await page.locator('.episode-head').boundingBox();
+  await page.setViewportSize({ width: 1020, height: 900 });
+  const after = await page.locator('.episode-head').boundingBox();
+  // The text column keeps its x and its measure; only the rail appears.
+  expect(Math.abs(after!.x - before!.x)).toBeLessThan(20);
+  expect(Math.abs(after!.width - before!.width)).toBeLessThan(2);
+});
+
+test('resizing reflows without reloading the page', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto('/#/ep01');
+  await page.evaluate(() => {
+    (window as unknown as { __alive?: string }).__alive = 'yes';
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page).toHaveURL(/#\/ep01$/);
+  expect(
+    await page.evaluate(() => (window as unknown as { __alive?: string }).__alive),
+  ).toBe('yes');
+  const [imgBox, capBox] = await Promise.all([
+    page.locator('.notes .shot img').first().boundingBox(),
+    page.locator('.notes .shot figcaption').first().boundingBox(),
+  ]);
+  expect(capBox!.x).toBeGreaterThan(imgBox!.x + imgBox!.width);
 });
 
 test('everything on the article stays neutral too', async ({ page }) => {
@@ -403,28 +499,26 @@ test('type is large on desktop and the column keeps a readable measure', async (
   await page.goto('/#/ep01');
   const root = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
   expect(root).toBeGreaterThanOrEqual(20);
-  const body = page.locator('.notes .body-text').first();
-  const fontPx = await body.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  const fontPx = await page.evaluate(() =>
+    parseFloat(getComputedStyle(document.body).fontSize),
+  );
   expect(fontPx).toBeGreaterThanOrEqual(20);
 });
 
 test('narrow screens keep a real (but modest) padding', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#/ep01');
-  const padding = await page.locator('.wrap').evaluate((el) => {
-    const s = getComputedStyle(el);
-    return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
-  });
-  // Breathing room, but the column still owns most of the screen.
-  expect(padding.left).toBeGreaterThanOrEqual(12);
-  expect(padding.left).toBeLessThanOrEqual(26);
-  expect(padding.left).toBe(padding.right);
-
-  const [bodyBox, viewport] = await Promise.all([
-    page.locator('.notes .body-text').first().boundingBox(),
+  const [box, viewport] = await Promise.all([
+    page.locator('.wrap').boundingBox(),
     page.evaluate(() => window.innerWidth),
   ]);
-  const ratio = bodyBox ? bodyBox.width / viewport : 0;
+  // Breathing room on both sides, but the column still owns most of the screen.
+  const gutter = box!.x;
+  expect(gutter).toBeGreaterThanOrEqual(12);
+  expect(gutter).toBeLessThanOrEqual(26);
+  expect(viewport - (box!.x + box!.width)).toBeCloseTo(gutter, 0);
+
+  const ratio = box!.width / viewport;
   expect(ratio).toBeGreaterThan(0.85);
   expect(ratio).toBeLessThan(0.96);
 });
