@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   Two palettes, one geometry: a neutral night mode (the page on rgb(25, 25, 25))
+   Two palettes, one geometry: a neutral night mode (the page on rgb(29, 29, 29))
    and a neutral day mode (white). Every surface is a pure grey in both — no
    green/blue cast anywhere; the only colour is the teal accent, retuned per
    palette so links stay readable on their background.
@@ -9,10 +9,11 @@
    photos sit close to the edge.
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Night: the page sits on rgb(25, 25, 25). */
-  --bg: #191919;
-  --bg-raised: #1f1f1f; /* cards on the home page only */
-  --bg-sunken: #121212; /* media wells, code */
+  /* Night: the page sits on rgb(29, 29, 29). The other surfaces keep the same
+     number of steps above / below it, so the cards still read as raised. */
+  --bg: #1d1d1d;
+  --bg-raised: #232323; /* +6 — cards on the home page only */
+  --bg-sunken: #161616; /* -7 — media wells, code */
   --fg: #e8e8e8;
   --muted: #9a9a9a;
   --faint: #707070;

@@ -4,7 +4,7 @@ const XYZ = 'https://www.xiaoyuzhoufm.com/episode/6a62ccb96356eb2d9be785fa';
 const ORIMONO = 'https://neg2sode.github.io/orimono/';
 
 // Every opaque background on the page must be a pure grey (R = G = B) — no
-// green/blue cast anywhere, and the page itself sits on rgb(25, 25, 25).
+// green/blue cast anywhere, and the page itself sits on rgb(29, 29, 29).
 async function neutralBackgrounds(page: Page) {
   return page.evaluate(() => {
     const parse = (bg: string) => {
@@ -36,9 +36,9 @@ test('home shows site title and an episode card', async ({ page }) => {
   await expect(avatar).toHaveAttribute('src', /avatar\.jpg/);
 });
 
-test('page background is neutral rgb(25, 25, 25)', async ({ page }) => {
+test('page background is neutral rgb(29, 29, 29)', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(25, 25, 25)');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(29, 29, 29)');
   expect(await neutralBackgrounds(page)).toEqual([]);
 });
 
