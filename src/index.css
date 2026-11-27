@@ -1,14 +1,16 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   Neutral dark palette. Every surface is a pure grey (R = G = B) — no hue, no
-   green/blue cast. The page sits on rgb(25, 25, 25). The only colour on the
-   page is the teal accent, used for links and small highlights.
+   Two palettes, one geometry: a neutral night mode (the page on rgb(25, 25, 25))
+   and a neutral day mode (white). Every surface is a pure grey in both — no
+   green/blue cast anywhere; the only colour is the teal accent, retuned per
+   palette so links stay readable on their background.
 
    Type: one big, confident size stepped with the viewport (clamp), so the text
-   is the design. On narrow screens the side padding shrinks to almost nothing
-   and the text/photos run edge to edge.
+   is the design. On narrow screens the side padding stays modest, text and
+   photos sit close to the edge.
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  --bg: #191919; /* rgb(25, 25, 25) — the page itself */
+  /* Night: the page sits on rgb(25, 25, 25). */
+  --bg: #191919;
   --bg-raised: #1f1f1f; /* cards on the home page only */
   --bg-sunken: #121212; /* media wells, code */
   --fg: #e8e8e8;
@@ -17,7 +19,7 @@
   --line: #303030;
   --line-strong: #4a4a4a;
 
-  /* Accent: the site's teal, tuned for a #191919 background. */
+  /* Accent on a dark background. */
   --accent: #03bfa5;
   --accent-bright: #2fd4bd;
 
@@ -27,6 +29,26 @@
 
   color-scheme: dark;
   background: var(--bg);
+}
+
+/* Day: white page, grey furniture, a deeper teal that keeps AA contrast. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff;
+    --bg-raised: #f6f6f6;
+    --bg-sunken: #ededed;
+    --fg: #161616;
+    --muted: #5f5f5f;
+    --faint: #787878;
+    --line: #e5e5e5;
+    --line-strong: #c9c9c9;
+
+    /* #067a6b clears 4.5:1 on white; hover goes darker, not brighter. */
+    --accent: #067a6b;
+    --accent-bright: #016b5c;
+
+    color-scheme: light;
+  }
 }
 
 * {
@@ -43,7 +65,7 @@ img {
 html {
   /* Big reading type that grows with the window. Everything below is in rem,
      so the whole page steps up together. */
-  font-size: clamp(21px, 1vw + 7px, 26px);
+  font-size: clamp(21.5px, 1vw + 7px, 26.5px);
   line-height: 1.6;
   overflow-wrap: break-word;
   -webkit-text-size-adjust: 100%;
@@ -66,10 +88,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Inverted selection, like a highlighter pen. */
+/* Inverted selection, like a highlighter pen — flipped in day mode. */
 ::selection {
-  background: #e8e8e8;
-  color: #191919;
+  background: var(--fg);
+  color: var(--bg);
 }
 
 a {
@@ -423,7 +445,7 @@ p {
 /* ── Narrow screens: almost no side padding, text fills the glass ──────────── */
 @media (max-width: 600px) {
   .wrap {
-    padding: 2.25rem 1rem 3.25rem;
+    padding: 2.25rem 0.75rem 3.25rem;
   }
   .site-head {
     gap: 0.9rem;

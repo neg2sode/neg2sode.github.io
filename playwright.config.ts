@@ -9,6 +9,8 @@ export default defineConfig({
     // The site's primary audience is Chinese; run tests in zh so content
     // assertions hit the Chinese strings. See the localisation test for en.
     locale: 'zh-CN',
+    // Night mode is the default palette; the light-mode suite opts into 'light'.
+    colorScheme: 'dark',
     trace: 'on-first-retry',
   },
   // Boot the Vite dev server for the test run (reuses one if already running).

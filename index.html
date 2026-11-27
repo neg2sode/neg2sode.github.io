@@ -10,10 +10,11 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- The site is dark by design: tell the browser, and darkening extensions,
-         to leave it alone. The page background is neutral rgb(25, 25, 25). -->
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#191919" />
+    <!-- Two neutral palettes: night (page on rgb(25,25,25)) and day (white).
+         Follow the system preference; tell extensions not to repaint it. -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#191919" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="darkreader-lock" />
 
     <title>雨林观察者的博客</title>
@@ -37,9 +38,14 @@
     />
 
     <style>
-      /* Paint the neutral background before the bundle loads (no white flash). */
+      /* Paint the right neutral background before the bundle loads. */
       html {
         background: #191919;
+      }
+      @media (prefers-color-scheme: light) {
+        html {
+          background: #ffffff;
+        }
       }
     </style>
   </head>

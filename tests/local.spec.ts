@@ -42,6 +42,34 @@ test('page background is neutral rgb(25, 25, 25)', async ({ page }) => {
   expect(await neutralBackgrounds(page)).toEqual([]);
 });
 
+test.describe('day mode (prefers-color-scheme: light)', () => {
+  test.use({ colorScheme: 'light' });
+
+  test('paints a neutral white palette with the deeper teal', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(22, 22, 22)');
+    // Still no hue anywhere: every opaque background is a pure grey.
+    expect(await neutralBackgrounds(page)).toEqual([]);
+    // Links use the light-mode teal, dark enough to read on white.
+    await expect(page.locator('.site-nav a').first()).toHaveCSS(
+      'color',
+      'rgb(6, 122, 107)',
+    );
+    // The document advertises both schemes, and the page follows the OS.
+    const scheme = await page.evaluate(
+      () => getComputedStyle(document.documentElement).colorScheme,
+    );
+    expect(scheme).toContain('light');
+
+    // Article + app page stay neutral in day mode too.
+    for (const route of ['/#/ep01', '/#/andare']) {
+      await page.goto(route);
+      expect(await neutralBackgrounds(page), route).toEqual([]);
+    }
+  });
+});
+
 test('clicking anywhere on the card opens the detail page', async ({ page }) => {
   await page.goto('/');
   // Click the excerpt text — proves the WHOLE card is the link, not just the title.
@@ -388,8 +416,8 @@ test('narrow screens keep a real (but modest) padding', async ({ page }) => {
     return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
   });
   // Breathing room, but the column still owns most of the screen.
-  expect(padding.left).toBeGreaterThanOrEqual(14);
-  expect(padding.left).toBeLessThanOrEqual(32);
+  expect(padding.left).toBeGreaterThanOrEqual(12);
+  expect(padding.left).toBeLessThanOrEqual(26);
   expect(padding.left).toBe(padding.right);
 
   const [bodyBox, viewport] = await Promise.all([
